@@ -19,7 +19,7 @@ export default function Navbar() {
   }
 
   return (
-    <header className="bg-neutral-900 text-gradient  p-4 shadow-md flex items-center justify-between bg-gradient-to-r from-purple-950 via-black to-neutral-900 ">
+    <header className="bg-neutral-900 text-gradient  p-4 shadow-md flex items-center justify-between bg-gradient-to-r from-purple-950 via-blue-800 to-purple-950 ">
       <div className="text-2xl font-bold text-gradient cursor-pointer" onClick={() => router.push('/dashboard')}>
         GrocerEase
       </div>
@@ -34,7 +34,7 @@ export default function Navbar() {
       <nav className="hidden lg:flex space-x-4">
         <button onClick={() => router.push('/dashboard')} className="hover:underline">Dashboard</button>
         <button onClick={() => router.push('/editinventory')} className="hover:underline">Edit Inventory</button>
-        <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded">
+        <button onClick={handleLogout} className="bg-gray-900 hover:bg-gray-950 text-white py-2 px-4 rounded">
           Logout
         </button>
       </nav>

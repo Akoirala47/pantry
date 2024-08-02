@@ -242,7 +242,7 @@ export default function EditInventory() {
   return (
     <div className="relative min-h-screen bg-black text-white">
       <Navbar />
-
+  
       <main className="p-8 flex flex-col items-center">
         <motion.div
           className="relative w-full max-w-lg mb-6"
@@ -260,14 +260,14 @@ export default function EditInventory() {
                 handleSearch(e.target.value)
               }}
               onKeyPress={handleKeyPress}
-              className="w-full px-4 py-2 bg-neutral-900 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-800"
+              className="w-full px-4 py-2 bg-gray-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
         </motion.div>
-
+  
         <div className="flex flex-col items-center w-full max-w-4xl">
           <motion.button
-            className="mb-6 px-4 py-2 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+            className="mb-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-400 focus:outline-none"
             onClick={() => setShowNewItemForm(!showNewItemForm)}
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -275,10 +275,10 @@ export default function EditInventory() {
           >
             {showNewItemForm ? 'Cancel' : 'Add Item'}
           </motion.button>
-
+  
           {showNewItemForm && (
             <motion.div
-              className="w-full mb-6 p-4 bg-neutral-900 rounded"
+              className="w-full mb-6 p-4 bg-gray-800 rounded"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
@@ -288,33 +288,33 @@ export default function EditInventory() {
                 placeholder="Name"
                 value={newItem.name}
                 onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                className="w-full mb-2 px-4 py-2 bg-neutral-900 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-800"
+                className="w-full mb-2 px-4 py-2 bg-gray-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               <input
                 type="number"
                 placeholder="Count"
                 value={newItem.count}
                 onChange={(e) => setNewItem({ ...newItem, count: e.target.value })}
-                className="w-full mb-2 px-4 py-2 bg-neutral-900 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-800"
+                className="w-full mb-2 px-4 py-2 bg-gray-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               <input
                 type="date"
                 placeholder="Expiration Date"
                 value={newItem.expirationDate}
                 onChange={(e) => setNewItem({ ...newItem, expirationDate: e.target.value })}
-                className="w-full mb-2 px-4 py-2 bg-neutral-900 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-800"
+                className="w-full mb-2 px-4 py-2 bg-gray-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               <button
                 onClick={handleAddItem}
-                className="w-full px-4 py-2 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+                className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-400 focus:outline-none"
               >
                 Add Item
               </button>
             </motion.div>
           )}
-
+  
           <motion.div
-            className="w-full mb-6 p-4 bg-neutral-900 rounded"
+            className="w-full mb-6 p-4 bg-gray-800 rounded"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
@@ -327,27 +327,27 @@ export default function EditInventory() {
             />
             <button
               onClick={() => setShowCamera(!showCamera)}
-              className="w-full px-4 py-2 mb-2 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+              className="w-full px-4 py-2 mb-2 bg-blue-500 text-white rounded hover:bg-blue-400 focus:outline-none"
             >
               {showCamera ? 'Close Camera' : 'Identify Product'}
             </button>
             <button
               onClick={handleIdentifyFruit}
-              className="w-full px-4 py-2 mb-2 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+              className="w-full px-4 py-2 mb-2 bg-blue-500 text-white rounded hover:bg-blue-400 focus:outline-none"
             >
               Capture and Identify
             </button>
             <button
               onClick={handleAddIdentifiedFruit}
-              className="w-full px-4 py-2 mb-2 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+              className="w-full px-4 py-2 mb-2 bg-blue-500 text-white rounded hover:bg-blue-400 focus:outline-none"
               disabled={!identifiedFruit}
             >
               Add Identified Product
             </button>
           </motion.div>
-
+  
           <motion.div
-            className="w-full mb-6 p-4 bg-neutral-900 rounded"
+            className="w-full mb-6 p-4 bg-gray-800 rounded"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
@@ -357,18 +357,18 @@ export default function EditInventory() {
               placeholder="Paste CSV content here..."
               value={csvText}
               onChange={(e) => setCsvText(e.target.value)}
-              className="w-full mb-2 px-4 py-2 bg-neutral-900 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-800"
+              className="w-full mb-2 px-4 py-2 bg-gray-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
             <button
               onClick={handleCsvUpload}
-              className="w-full px-4 py-2 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+              className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-400 focus:outline-none"
             >
               Upload CSV
             </button>
           </motion.div>
-
+  
           <motion.div
-            className="w-full p-4 bg-neutral-900 rounded"
+            className="w-full p-4 bg-gray-800 rounded"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
@@ -376,18 +376,18 @@ export default function EditInventory() {
             <h2 className="text-xl font-bold mb-4">Inventory List</h2>
             <div className="grid grid-cols-3 gap-4 text-sm">
               {filteredInventory.map((item) => (
-                <div key={item.id} className="bg-neutral-900 p-2 rounded">
+                <div key={item.id} className="bg-gray-800 p-2 rounded">
                   <div className="font-bold mb-1">{item.name}</div>
                   <div className="mb-1">Count: {item.count}</div>
                   <div className="mb-1">Expires: {item.expirationDate}</div>
                   <button
-                    className="mr-2 px-2 py-1 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+                    className="mr-2 px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-400 focus:outline-none"
                     onClick={() => handleDeleteItem(item.id)}
                   >
                     Delete
                   </button>
                   <button
-                    className="px-2 py-1 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+                    className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-400 focus:outline-none"
                     onClick={() => startEditing(item)}
                   >
                     Edit
@@ -397,7 +397,7 @@ export default function EditInventory() {
             </div>
           </motion.div>
         </div>
-
+  
         {editingItemId && (
           <motion.div
             className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50"
@@ -406,7 +406,7 @@ export default function EditInventory() {
             transition={{ duration: 0.3 }}
           >
             <motion.div
-              className="bg-neutral-900 p-6 rounded"
+              className="bg-gray-800 p-6 rounded"
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.3 }}
@@ -417,31 +417,31 @@ export default function EditInventory() {
                 placeholder="Name"
                 value={editedItem.name}
                 onChange={(e) => setEditedItem({ ...editedItem, name: e.target.value })}
-                className="w-full mb-2 px-4 py-2 bg-neutral-900 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-800"
+                className="w-full mb-2 px-4 py-2 bg-gray-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               <input
                 type="number"
                 placeholder="Count"
                 value={editedItem.count}
                 onChange={(e) => setEditedItem({ ...editedItem, count: e.target.value })}
-                className="w-full mb-2 px-4 py-2 bg-neutral-900 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-800"
+                className="w-full mb-2 px-4 py-2 bg-gray-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               <input
                 type="date"
                 placeholder="Expiration Date"
                 value={editedItem.expirationDate}
                 onChange={(e) => setEditedItem({ ...editedItem, expirationDate: e.target.value })}
-                className="w-full mb-2 px-4 py-2 bg-neutral-900 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-800"
+                className="w-full mb-2 px-4 py-2 bg-gray-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               <div className="flex justify-end">
                 <button
-                  className="mr-2 px-4 py-2 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+                  className="mr-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-400 focus:outline-none"
                   onClick={() => setEditingItemId(null)}
                 >
                   Cancel
                 </button>
                 <button
-                  className="px-4 py-2 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-400 focus:outline-none"
                   onClick={() => handleEditItem(editingItemId)}
                 >
                   Save
@@ -453,5 +453,6 @@ export default function EditInventory() {
       </main>
     </div>
   )
+  
   
 }
