@@ -1,36 +1,32 @@
-'use client'
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import loginBg from '../assets/food-icons-collage.png'
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function LoginForm({ onGoogleLogin, onEmailLogin, onEmailSignup }) {
-  const [isLogin, setIsLogin] = useState(true)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleLoginSubmit = (e) => {
-    e.preventDefault()
-    onEmailLogin(email, password)
-  }
+    e.preventDefault();
+    onEmailLogin(email, password);
+  };
 
   const handleSignupSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (password !== confirmPassword) {
-      alert('Passwords do not match')
-      return
+      alert('Passwords do not match');
+      return;
     }
-    onEmailSignup(email, password)
-  }
+    onEmailSignup(email, password);
+  };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-black">
-      <div 
-        className="absolute inset-0 bg-cover bg-center" 
-        style={{ backgroundImage: `url(${loginBg.src})` }} 
-      ></div>
+    <div className="relative min-h-screen flex items-center justify-center pattern-bg">
       <div className="relative flex flex-col items-center space-y-8 p-8">
-        <div className="relative bg-neutral-900 bg-opacity-100 p-6 rounded-lg">
+        <div className="relative bg-neutral-900 bg-opacity-100 p-6 rounded-lg flex items-center space-x-4">
+          {/* Replace with a placeholder URL to check if the issue is with the path */}
+          <img src="/grocereaselogo.png" alt="GrocerEase Logo" className="w-12 h-12 rounded-full" />
           <h1 className="text-4xl font-bold text-white text-center">
             Welcome to GrocerEase
           </h1>
@@ -144,5 +140,5 @@ export default function LoginForm({ onGoogleLogin, onEmailLogin, onEmailSignup }
         </div>
       </div>
     </div>
-  )
+  );
 }
