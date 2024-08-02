@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { auth, firestore } from '@/firebase'
-import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
+import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 import { collection, getDocs } from 'firebase/firestore'
 import LoginForm from './components/LoginForm'
 import Dashboard from './components/dashboard'
@@ -43,8 +43,32 @@ export default function Home() {
     }
   }
 
+  const handleEmailSignup = async (email, password) => {
+    try {
+      await createUserWithEmailAndPassword(auth, email, password)
+      console.log('Signup successful')
+    } catch (error) {
+      console.error('Error signing up with email:', error)
+    }
+  }
+
+  const handleEmailLogin = async (email, password) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password)
+      console.log('Login successful')
+    } catch (error) {
+      console.error('Error logging in with email:', error)
+    }
+  }
+
   if (!user) {
-    return <LoginForm onGoogleLogin={handleGoogleLogin} />
+    return (
+      <LoginForm
+        onGoogleLogin={handleGoogleLogin}
+        onEmailSignup={handleEmailSignup}
+        onEmailLogin={handleEmailLogin}
+      />
+    )
   }
 
   switch (currentPath) {

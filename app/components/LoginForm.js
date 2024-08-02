@@ -3,8 +3,25 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import loginBg from '../assets/food-icons-collage.png'
 
-export default function LoginForm({ onGoogleLogin }) {
+export default function LoginForm({ onGoogleLogin, onEmailLogin, onEmailSignup }) {
   const [isLogin, setIsLogin] = useState(true)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
+  const handleLoginSubmit = (e) => {
+    e.preventDefault()
+    onEmailLogin(email, password)
+  }
+
+  const handleSignupSubmit = (e) => {
+    e.preventDefault()
+    if (password !== confirmPassword) {
+      alert('Passwords do not match')
+      return
+    }
+    onEmailSignup(email, password)
+  }
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-black">
@@ -58,15 +75,19 @@ export default function LoginForm({ onGoogleLogin }) {
                     >
                       Login with Google
                     </button>
-                    <form className="mt-4">
+                    <form onSubmit={handleLoginSubmit} className="mt-4">
                       <input
                         type="email"
                         placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         className="w-full mb-4 p-2 border border-gray-700 bg-gray-800 text-white rounded"
                       />
                       <input
                         type="password"
                         placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         className="w-full mb-4 p-2 border border-gray-700 bg-gray-800 text-white rounded"
                       />
                       <button
@@ -86,20 +107,26 @@ export default function LoginForm({ onGoogleLogin }) {
                     >
                       Signup with Google
                     </button>
-                    <form className="mt-4">
+                    <form onSubmit={handleSignupSubmit} className="mt-4">
                       <input
                         type="email"
                         placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         className="w-full mb-4 p-2 border border-gray-700 bg-gray-800 text-white rounded"
                       />
                       <input
                         type="password"
                         placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         className="w-full mb-4 p-2 border border-gray-700 bg-gray-800 text-white rounded"
                       />
                       <input
                         type="password"
                         placeholder="Confirm Password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
                         className="w-full mb-4 p-2 border border-gray-700 bg-gray-800 text-white rounded"
                       />
                       <button
