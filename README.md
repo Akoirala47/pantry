@@ -11,6 +11,7 @@ This React project is a Web-application for managing inventory. Users can log in
 * Inventory overview with total items, low stock, and out of stock counts
 * CSV import for bulk adding inventory items
 * Animations with Framer Motion
+* Image classification for inventory items using MobileNet
 
 ### Technologies Used
 
@@ -19,6 +20,7 @@ This React project is a Web-application for managing inventory. Users can log in
 * Firebase (authentication and Firestore)
 * Framer Motion (for animations)
 * CSV parsing library (for parsing CSV data)
+* TensorFlow.js (for image classification with MobileNet)
 
 ### Project Structure
 
@@ -144,3 +146,9 @@ Flour - Bran Red,9,29-11-2024
 
 
 You can copy and paste this data into the CSV input and use it to upload your initial inventory.
+
+
+### MobileNet Image Classification
+
+* The EditInventory component now includes image classification using the MobileNet model. Users can use their webcam to capture an image of an item, and the model will identify the item.
+
