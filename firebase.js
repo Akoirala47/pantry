@@ -3,13 +3,13 @@ import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCYkbi3HL62WgjL5nNjxZTXHyItw09rthE",
-  authDomain: "pantry-40e32.firebaseapp.com",
-  projectId: "pantry-40e32",
-  storageBucket: "pantry-40e32.appspot.com",
-  messagingSenderId: "914328450166",
-  appId: "1:914328450166:web:97f32819a476d08d861b57",
-  measurementId: "G-QVN07J0VFX"
+  apiKey: "AIzaSyBoYxWzkhNj6QT9UNJO2SfhH_ACAupJMaE",
+  authDomain: "inventory-pantry.firebaseapp.com",
+  projectId: "inventory-pantry",
+  storageBucket: "inventory-pantry.appspot.com",
+  messagingSenderId: "571075400282",
+  appId: "1:571075400282:web:6e01848dab63695a9afe63",
+  measurementId: "G-RSYMG3JJMT"
 };
 
 // Initialize Firebase

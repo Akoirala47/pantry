@@ -1,12 +1,12 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from './Navbar'
 import { auth, firestore } from '@/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { useRouter } from 'next/navigation'
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc, writeBatch } from 'firebase/firestore'
-import Papa from 'papaparse'
+import { parse } from 'csv-parse';
 
 export default function EditInventory() {
   const [user, setUser] = useState(null)
@@ -17,9 +17,9 @@ export default function EditInventory() {
   const [showNewItemForm, setShowNewItemForm] = useState(false)
   const [editingItemId, setEditingItemId] = useState(null)
   const [editedItem, setEditedItem] = useState({ name: '', count: '', expirationDate: '' })
-  const [csvFile, setCsvFile] = useState(null)
+  const [csvText, setCsvText] = useState('')
+  const [showCsvInput, setShowCsvInput] = useState(false)
   const router = useRouter()
-  const fileInputRef = useRef(null)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -106,45 +106,65 @@ export default function EditInventory() {
     }
   }
 
-  const handleCsvUpload = (event) => {
-    const file = event.target.files[0]
-    if (file) {
-      setCsvFile(file)
-      Papa.parse(file, {
-        header: true,
-        skipEmptyLines: true,
-        complete: async (results) => {
-          console.log('Parsed CSV data:', results.data)
-          const items = results.data.map(row => ({
-            name: row['name'] || '',
-            count: row['count'] || '',
-            expirationDate: row['expirationDate'] || ''
-          }))
-          
-          try {
-            const batch = writeBatch(firestore);
-            const userInventoryRef = collection(firestore, 'users', user.uid, 'inventory');
-            
-            items.forEach((item) => {
-              const newDocRef = doc(userInventoryRef);
-              batch.set(newDocRef, item);
-            });
-
-            await batch.commit();
-            console.log('CSV items added successfully');
-            fetchInventoryData(user);
-          } catch (error) {
-            console.error('Error adding items from CSV:', error);
-          }
-        },
-        error: (error) => {
-          console.error('Error parsing CSV:', error)
-        }
-      })
-    } else {
-      console.error('No file selected')
+  const handleCsvUpload = async () => {
+    if (csvText.trim() === '') {
+      console.error('No CSV content provided');
+      alert('Please paste some CSV content before processing.');
+      return;
     }
-  }
+  
+    console.log('CSV content:', csvText); // Debug log
+  
+    parse(csvText, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true,
+      quote: '"',
+      escape: '"',
+    }, async (error, records) => {
+      if (error) {
+        console.error('Error parsing CSV:', error);
+        alert('Error parsing CSV. Please check your input format.');
+        return;
+      }
+      console.log('Parsed CSV records:', records);
+  
+      if (records.length === 0) {
+        console.error('No valid records found in CSV');
+        alert('No valid records found in the CSV. Please check your input.');
+        return;
+      }
+  
+      try {
+        const batch = writeBatch(firestore);
+        const userInventoryRef = collection(firestore, 'users', user.uid, 'inventory');
+  
+        records.forEach((record) => {
+          console.log('Processing record:', record);
+          const [day, month, year] = record.expirationDate.split('-');
+          const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+          const item = {
+            name: record.name || '',
+            count: parseInt(record.count, 10) || 0,
+            expirationDate: formattedDate
+          };
+          console.log('Item to be added:', item);
+          const newDocRef = doc(userInventoryRef);
+          batch.set(newDocRef, item);
+        });
+  
+        await batch.commit();
+        console.log('CSV items added successfully');
+        alert('CSV items added successfully');
+        fetchInventoryData(user);
+        setCsvText('');
+        setShowCsvInput(false);
+      } catch (error) {
+        console.error('Error adding items from CSV:', error);
+        alert('Error adding items from CSV. Please try again.');
+      }
+    });
+  };
 
   const startEditing = (item) => {
     setEditingItemId(item.id)
@@ -231,70 +251,47 @@ export default function EditInventory() {
               className="p-2 rounded border border-neutral-600 bg-neutral-700 text-white mb-4 w-full"
             />
             <input
-              type="text"
-              placeholder="Expiration Date (mm/dd/yyyy)"
+              type="date"
+              placeholder="Expiration Date"
               value={newItem.expirationDate}
               onChange={(e) => setNewItem({ ...newItem, expirationDate: e.target.value })}
               className="p-2 rounded border border-neutral-600 bg-neutral-700 text-white mb-4 w-full"
             />
             <button
               onClick={handleAddItem}
-              className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded mt-4 w-full"
+              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
             >
               Add Item
             </button>
-            <div className="mt-4">
-              <label htmlFor="csv-upload" className="block text-sm font-medium text-gray-300 mb-2">
-                Upload CSV
-              </label>
-              <input
-                id="csv-upload"
-                type="file"
-                accept=".csv"
-                onChange={handleCsvUpload}
-                className="block w-full text-sm text-gray-300
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-blue-500 file:text-white
-                  hover:file:bg-blue-600"
-              />
-            </div>
           </motion.div>
         )}
 
-        <motion.div
-          className="mt-6 w-full max-w-4xl overflow-x-auto"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          <h2 className="text-xl font-bold mb-4">Inventory List</h2>
-          <table className="w-full bg-neutral-800 rounded-lg shadow-md border border-neutral-600">
+        <div className="w-full max-w-3xl overflow-x-auto">
+          <table className="w-full border-collapse bg-neutral-900 text-white">
             <thead>
               <tr>
-                <th className="p-3 border-b border-neutral-600">Name</th>
-                <th className="p-3 border-b border-neutral-600">Count</th>
-                <th className="p-3 border-b border-neutral-600">Expiration Date</th>
-                <th className="p-3 border-b border-neutral-600">Actions</th>
+                <th className="border-b border-neutral-700 p-4 text-left">Name</th>
+                <th className="border-b border-neutral-700 p-4 text-left">Count</th>
+                <th className="border-b border-neutral-700 p-4 text-left">Expiration Date</th>
+                <th className="border-b border-neutral-700 p-4 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredInventory.map(item => (
+              {filteredInventory.map((item) => (
                 <tr key={item.id}>
-                  <td className="p-3 border-b border-neutral-600">{item.name}</td>
-                  <td className="p-3 border-b border-neutral-600">{item.count}</td>
-                  <td className="p-3 border-b border-neutral-600">{item.expirationDate}</td>
-                  <td className="p-3 border-b border-neutral-600">
+                  <td className="border-b border-neutral-800 p-4">{item.name}</td>
+                  <td className="border-b border-neutral-800 p-4">{item.count}</td>
+                  <td className="border-b border-neutral-800 p-4">{item.expirationDate}</td>
+                  <td className="border-b border-neutral-800 p-4 flex space-x-2">
                     <button
                       onClick={() => startEditing(item)}
-                      className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded mr-2"
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-2 rounded"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDeleteItem(item.id)}
-                      className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded"
+                      className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded"
                     >
                       Delete
                     </button>
@@ -303,7 +300,7 @@ export default function EditInventory() {
               ))}
             </tbody>
           </table>
-        </motion.div>
+        </div>
 
         {editingItemId && (
           <motion.div
@@ -328,26 +325,45 @@ export default function EditInventory() {
               className="p-2 rounded border border-neutral-600 bg-neutral-700 text-white mb-4 w-full"
             />
             <input
-              type="text"
-              placeholder="Expiration Date (mm/dd/yyyy)"
+              type="date"
+              placeholder="Expiration Date"
               value={editedItem.expirationDate}
               onChange={(e) => setEditedItem({ ...editedItem, expirationDate: e.target.value })}
               className="p-2 rounded border border-neutral-600 bg-neutral-700 text-white mb-4 w-full"
             />
             <button
               onClick={() => handleEditItem(editingItemId)}
-              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded w-full"
+              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
             >
-              Update Item
-            </button>
-            <button
-              onClick={() => setEditingItemId(null)}
-              className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded mt-4 w-full"
-            >
-              Cancel
+              Save Changes
             </button>
           </motion.div>
         )}
+
+        <div className="w-full max-w-md mt-6">
+          <button
+            onClick={() => setShowCsvInput(!showCsvInput)}
+            className="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded"
+          >
+            {showCsvInput ? 'Hide CSV Input' : 'Show CSV Input'}
+          </button>
+          {showCsvInput && (
+            <div className="mt-4">
+              <textarea
+                value={csvText}
+                onChange={(e) => setCsvText(e.target.value)}
+                placeholder="Paste your CSV content here"
+                className="w-full h-40 p-2 rounded border border-neutral-600 bg-neutral-700 text-white"
+              />
+              <button
+                onClick={handleCsvUpload}
+                className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+              >
+                Process CSV
+              </button>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   )
