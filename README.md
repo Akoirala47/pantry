@@ -75,8 +75,6 @@ name,count,expirationDate
 Bread - Ciabatta Buns,1,27-01-2025
 Mushrooms - Honey,18,15-07-2024
 Wine - Sicilia Igt Nero Avola,7,25-10-2024
-"Napkin - Cocktail,beige 2 - Ply",7,30-11-2024
-"Pasta - Penne Primavera, Single",20,08-01-2025
 Bonito Flakes - Toku Katsuo,2,14-07-2024
 Hand Towel,15,25-11-2024
 Juice - Lime,12,24-11-2024
@@ -109,7 +107,7 @@ Puree - Kiwi,6,10-12-2024
 Capers - Ox Eye Daisy,6,17-01-2025
 Garlic - Elephant,3,12-07-2024
 Lemonade - Natural, 591 Ml,20,10-03-2025
-Aromat Spice / Seasoning,7,24-10-2024
+Aromat Spice Seasoning,7,24-10-2024
 Rum - Spiced, Captain Morgan,19,08-03-2025
 Soup Campbells,8,31-12-2024
 Peas Snow,5,22-09-2024
@@ -121,19 +119,14 @@ Wine - Magnotta - Cab Sauv,6,25-08-2024
 Creme De Banane - Marie,10,07-10-2024
 Pie Shell - 9,7,13-02-2025
 Water - Green Tea Refresher,6,05-02-2025
-Pasta - Fusili Tri - Coloured,0,30-10-2024
 Tart Shells - Savory, 4,4,21-07-2024
 Table Cloth - 53x69 Colour,17,23-12-2024
 Beer - Sleemans Honey Brown,6,01-10-2024
-Container - Hngd Cll Blk 7x7x3,2,05-03-2025
 Dried Apple,19,30-12-2024
 Carbonated Water - Orange,11,08-11-2024
-"Fish - Scallops, Cold Smoked",16,10-08-2024
 Tea - Jasmin Green,6,17-02-2025
 Foil - 4oz Custard Cup,5,20-12-2024
 Hummus - Spread,3,10-02-2025
-"Vinegar - Balsamic, White",4,09-12-2024
-Wine - Beringer Founders Estate,8,08-03-2025
 Beans - Yellow,11,13-09-2024
 Bread - Pullman, Sliced,19,08-01-2025
 Beer - Upper Canada Lager,9,13-01-2025
