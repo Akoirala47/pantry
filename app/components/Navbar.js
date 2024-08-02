@@ -41,7 +41,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="lg:hidden absolute top-16 right-0 bg-gray-800 text-white w-48 shadow-lg rounded-md">
+        <div className="lg:hidden absolute top-16 right-0 bg-gray-800 text-white w-48 shadow-lg rounded-md z-50">
           <ul className="flex flex-col">
             <li>
               <button
