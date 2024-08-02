@@ -34,8 +34,8 @@ export default function Dashboard() {
 
   // Calculate totals for the counters
   const totalItems = inventoryData.length
-  const lowStock = inventoryData.filter(item => item.count < 5).length
-  const outOfStock = inventoryData.filter(item => item.count === 0).length
+  const lowStock = inventoryData.filter(item => item.count <= 5).length
+  const outOfStock = inventoryData.filter(item => item.count <= 0).length
 
   if (!user) {
     return null // Or a loading spinner
