@@ -10,6 +10,8 @@ import { motion } from 'framer-motion'
 export default function Dashboard() {
   const [user, setUser] = useState(null)
   const [inventoryData, setInventoryData] = useState([])
+  const [filteredData, setFilteredData] = useState([])
+  const [filter, setFilter] = useState('all')
   const router = useRouter()
 
   useEffect(() => {
@@ -25,20 +27,31 @@ export default function Dashboard() {
   }, [router])
 
   const fetchInventoryData = async (currentUser) => {
-    if (!currentUser) return;
-    const userInventoryRef = collection(firestore, 'users', currentUser.uid, 'inventory');
+    if (!currentUser) return
+    const userInventoryRef = collection(firestore, 'users', currentUser.uid, 'inventory')
     const querySnapshot = await getDocs(userInventoryRef)
     const data = querySnapshot.docs.map(doc => doc.data())
     setInventoryData(data)
+    setFilteredData(data)
   }
 
-  // Calculate totals for the counters
+  const applyFilter = (filter) => {
+    let filtered = inventoryData
+    if (filter === 'lowStock') {
+      filtered = inventoryData.filter(item => item.count <= 5)
+    } else if (filter === 'outOfStock') {
+      filtered = inventoryData.filter(item => item.count <= 0)
+    }
+    setFilter(filter)
+    setFilteredData(filtered)
+  }
+
   const totalItems = inventoryData.length
   const lowStock = inventoryData.filter(item => item.count <= 5).length
   const outOfStock = inventoryData.filter(item => item.count <= 0).length
 
   if (!user) {
-    return null // Or a loading spinner
+    return null
   }
 
   return (
@@ -52,28 +65,31 @@ export default function Dashboard() {
           </h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <motion.div
-              className="bg-neutral-800 p-6 rounded shadow-md flex flex-col items-center"
+              className="bg-neutral-800 p-6 rounded shadow-md flex flex-col items-center cursor-pointer"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
+              onClick={() => applyFilter('all')}
             >
               <h2 className="text-xl font-bold mb-2">Total Items</h2>
               <p className="text-3xl">{totalItems}</p>
             </motion.div>
             <motion.div
-              className="bg-neutral-800 p-6 rounded shadow-md flex flex-col items-center"
+              className="bg-neutral-800 p-6 rounded shadow-md flex flex-col items-center cursor-pointer"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
+              onClick={() => applyFilter('lowStock')}
             >
               <h2 className="text-xl font-bold mb-2">Low Stock</h2>
               <p className="text-3xl">{lowStock}</p>
             </motion.div>
             <motion.div
-              className="bg-neutral-800 p-6 rounded shadow-md flex flex-col items-center"
+              className="bg-neutral-800 p-6 rounded shadow-md flex flex-col items-center cursor-pointer"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
+              onClick={() => applyFilter('outOfStock')}
             >
               <h2 className="text-xl font-bold mb-2">Out of Stock</h2>
               <p className="text-3xl">{outOfStock}</p>
@@ -97,7 +113,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {inventoryData.map((item, index) => (
+                  {filteredData.map((item, index) => (
                     <tr key={index}>
                       <td className="py-2 px-4 border-b border-neutral-600">{item.name}</td>
                       <td className="py-2 px-4 border-b border-neutral-600">{item.count}</td>
