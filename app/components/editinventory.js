@@ -1,13 +1,14 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import Navbar from './Navbar'
 import { auth, firestore } from '@/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { useRouter } from 'next/navigation'
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc, writeBatch } from 'firebase/firestore'
-import { parse } from 'csv-parse';
-import moment from 'moment';
+import { parse } from 'csv-parse'
+import moment from 'moment'
+import Webcam from 'react-webcam'
 
 export default function EditInventory() {
   const [user, setUser] = useState(null)
@@ -20,6 +21,9 @@ export default function EditInventory() {
   const [editedItem, setEditedItem] = useState({ name: '', count: '', expirationDate: '' })
   const [csvText, setCsvText] = useState('')
   const [showCsvInput, setShowCsvInput] = useState(false)
+  const [identifiedFruit, setIdentifiedFruit] = useState(null)
+  const [showCamera, setShowCamera] = useState(false)
+  const webcamRef = useRef(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -33,6 +37,24 @@ export default function EditInventory() {
     })
     return () => unsubscribe()
   }, [router])
+
+  useEffect(() => {
+    // Dynamically load TensorFlow.js and MobileNet
+    const loadScripts = async () => {
+      const tfScript = document.createElement('script')
+      tfScript.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest'
+      tfScript.onload = async () => {
+        const mobilenetScript = document.createElement('script')
+        mobilenetScript.src = 'https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@latest'
+        mobilenetScript.onload = async () => {
+          console.log('MobileNet loaded')
+        }
+        document.body.appendChild(mobilenetScript)
+      }
+      document.body.appendChild(tfScript)
+    }
+    loadScripts()
+  }, [])
 
   const fetchInventoryData = async (currentUser) => {
     if (!currentUser) return
@@ -90,34 +112,32 @@ export default function EditInventory() {
   const handleDeleteAllItems = async () => {
     if (window.confirm("Are you sure you want to delete all items? This action cannot be undone.")) {
       try {
-        const batch = writeBatch(firestore);
-        const userInventoryRef = collection(firestore, 'users', user.uid, 'inventory');
-        const querySnapshot = await getDocs(userInventoryRef);
-        
-        querySnapshot.forEach((doc) => {
-          batch.delete(doc.ref);
-        });
+        const batch = writeBatch(firestore)
+        const userInventoryRef = collection(firestore, 'users', user.uid, 'inventory')
+        const querySnapshot = await getDocs(userInventoryRef)
 
-        await batch.commit();
-        console.log('All items deleted successfully');
-        fetchInventoryData(user);
+        querySnapshot.forEach((doc) => {
+          batch.delete(doc.ref)
+        })
+
+        await batch.commit()
+        console.log('All items deleted successfully')
+        fetchInventoryData(user)
       } catch (error) {
-        console.error('Error deleting all items:', error);
+        console.error('Error deleting all items:', error)
       }
     }
   }
 
-
-
   const handleCsvUpload = async () => {
     if (csvText.trim() === '') {
-      console.error('No CSV content provided');
-      alert('Please paste some CSV content before processing.');
-      return;
+      console.error('No CSV content provided')
+      alert('Please paste some CSV content before processing.')
+      return
     }
-  
-    console.log('CSV content:', csvText); // Debug log
-  
+
+    console.log('CSV content:', csvText)
+
     parse(csvText, {
       columns: true,
       skip_empty_lines: true,
@@ -126,48 +146,48 @@ export default function EditInventory() {
       escape: '"',
     }, async (error, records) => {
       if (error) {
-        console.error('Error parsing CSV:', error);
-        alert('Error parsing CSV. Please check your input format.');
-        return;
+        console.error('Error parsing CSV:', error)
+        alert('Error parsing CSV. Please check your input format.')
+        return
       }
-      console.log('Parsed CSV records:', records);
-  
+      console.log('Parsed CSV records:', records)
+
       if (records.length === 0) {
-        console.error('No valid records found in CSV');
-        alert('No valid records found in the CSV. Please check your input.');
-        return;
+        console.error('No valid records found in CSV')
+        alert('No valid records found in the CSV. Please check your input.')
+        return
       }
-  
+
       try {
-        const batch = writeBatch(firestore);
-        const userInventoryRef = collection(firestore, 'users', user.uid, 'inventory');
-  
+        const batch = writeBatch(firestore)
+        const userInventoryRef = collection(firestore, 'users', user.uid, 'inventory')
+
         records.forEach((record) => {
-          console.log('Processing record:', record);
-          const date = moment(record.expirationDate, 'DD-MM-YYYY');
-          const formattedDate = date.format('YYYY-MM-DD');
+          console.log('Processing record:', record)
+          const date = moment(record.expirationDate, 'DD-MM-YYYY')
+          const formattedDate = date.format('YYYY-MM-DD')
           const item = {
             name: record.name || '',
             count: parseInt(record.count, 10) || 0,
             expirationDate: formattedDate
-          };
-          console.log('Item to be added:', item);
-          const newDocRef = doc(userInventoryRef);
-          batch.set(newDocRef, item);
-        });
-  
-        await batch.commit();
-        console.log('CSV items added successfully');
-        alert('CSV items added successfully');
-        fetchInventoryData(user);
-        setCsvText('');
-        setShowCsvInput(false);
+          }
+          console.log('Item to be added:', item)
+          const newDocRef = doc(userInventoryRef)
+          batch.set(newDocRef, item)
+        })
+
+        await batch.commit()
+        console.log('CSV items added successfully')
+        alert('CSV items added successfully')
+        fetchInventoryData(user)
+        setCsvText('')
+        setShowCsvInput(false)
       } catch (error) {
-        console.error('Error adding items from CSV:', error);
-        alert('Error adding items from CSV. Please try again.');
+        console.error('Error adding items from CSV:', error)
+        alert('Error adding items from CSV. Please try again.')
       }
-    });
-  };
+    })
+  }
 
   const startEditing = (item) => {
     setEditingItemId(item.id)
@@ -177,6 +197,41 @@ export default function EditInventory() {
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSearch(searchQuery)
+    }
+  }
+
+  const handleIdentifyFruit = async () => {
+    if (showCamera) {
+      const screenshot = webcamRef.current.getScreenshot()
+
+      if (screenshot) {
+        const img = new Image()
+        img.src = screenshot
+        img.onload = async () => {
+          try {
+            // Load the MobileNet model
+            const model = await window.mobilenet.load()
+            // Classify the image
+            const predictions = await model.classify(img)
+
+            // Set the identified fruit to the prediction with the highest probability
+            setIdentifiedFruit(predictions[0].className)
+          } catch (error) {
+            console.error('Error loading or predicting with the model:', error)
+          }
+          setShowCamera(false)
+        }
+      }
+    }
+  }
+
+  const handleAddIdentifiedFruit = () => {
+    if (identifiedFruit) {
+      const fruitName = identifiedFruit.toString()
+      const count = 1
+      const expirationDate = ''
+      setNewItem({ name: fruitName, count: count, expirationDate: expirationDate })
+      setShowNewItemForm(true)
     }
   }
 
@@ -216,157 +271,198 @@ export default function EditInventory() {
           </div>
         </motion.div>
 
-        <div className="w-full max-w-md flex justify-between mb-6">
+        <motion.div
+          className="relative w-full max-w-md"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
           <button
-            onClick={() => setShowNewItemForm(!showNewItemForm)}
-            className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
+            onClick={() => setShowNewItemForm(true)}
+            className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded mb-4"
           >
-            {showNewItemForm ? 'Hide Item Form' : 'Add Item'}
+            Add Item
           </button>
+
+          <button
+            onClick={() => setShowCsvInput(!showCsvInput)}
+            className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded mb-4 ml-2"
+          >
+            {showCsvInput ? 'Cancel CSV Input' : 'Upload CSV'}
+          </button>
+
           <button
             onClick={handleDeleteAllItems}
-            className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
+            className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded mb-4 ml-2"
           >
             Delete All Items
           </button>
-        </div>
 
-        {showNewItemForm && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="w-full max-w-md bg-neutral-800 p-6 rounded shadow-md mb-6"
-          >
-            <h2 className="text-xl font-bold mb-4">New Item</h2>
-            <input
-              type="text"
-              placeholder="Name"
-              value={newItem.name}
-              onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-              className="p-2 rounded border border-neutral-600 bg-neutral-700 text-white mb-4 w-full"
-            />
-            <input
-              type="number"
-              placeholder="Count"
-              value={newItem.count}
-              onChange={(e) => setNewItem({ ...newItem, count: e.target.value })}
-              className="p-2 rounded border border-neutral-600 bg-neutral-700 text-white mb-4 w-full"
-            />
-            <input
-              type="date"
-              placeholder="Expiration Date"
-              value={newItem.expirationDate}
-              onChange={(e) => setNewItem({ ...newItem, expirationDate: e.target.value })}
-              className="p-2 rounded border border-neutral-600 bg-neutral-700 text-white mb-4 w-full"
-            />
-            <button
-              onClick={handleAddItem}
-              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-            >
-              Add Item
-            </button>
-          </motion.div>
-        )}
-
-        <div className="w-full max-w-3xl overflow-x-auto">
-          <table className="w-full border-collapse bg-neutral-900 text-white">
-            <thead>
-              <tr>
-                <th className="border-b border-neutral-700 p-4 text-left">Name</th>
-                <th className="border-b border-neutral-700 p-4 text-left">Count</th>
-                <th className="border-b border-neutral-700 p-4 text-left">Expiration Date</th>
-                <th className="border-b border-neutral-700 p-4 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredInventory.map((item) => (
-                <tr key={item.id}>
-                  <td className="border-b border-neutral-800 p-4">{item.name}</td>
-                  <td className="border-b border-neutral-800 p-4">{item.count}</td>
-                  <td className="border-b border-neutral-800 p-4">{item.expirationDate}</td>
-                  <td className="border-b border-neutral-800 p-4 flex space-x-2">
-                    <button
-                      onClick={() => startEditing(item)}
-                      className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-2 rounded"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteItem(item.id)}
-                      className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {editingItemId && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="w-full max-w-md bg-neutral-800 p-6 rounded shadow-md mt-6"
-          >
-            <h2 className="text-xl font-bold mb-4">Edit Item</h2>
-            <input
-              type="text"
-              placeholder="Name"
-              value={editedItem.name}
-              onChange={(e) => setEditedItem({ ...editedItem, name: e.target.value })}
-              className="p-2 rounded border border-neutral-600 bg-neutral-700 text-white mb-4 w-full"
-            />
-            <input
-              type="number"
-              placeholder="Count"
-              value={editedItem.count}
-              onChange={(e) => setEditedItem({ ...editedItem, count: e.target.value })}
-              className="p-2 rounded border border-neutral-600 bg-neutral-700 text-white mb-4 w-full"
-            />
-            <input
-              type="date"
-              placeholder="Expiration Date"
-              value={editedItem.expirationDate}
-              onChange={(e) => setEditedItem({ ...editedItem, expirationDate: e.target.value })}
-              className="p-2 rounded border border-neutral-600 bg-neutral-700 text-white mb-4 w-full"
-            />
-            <button
-              onClick={() => handleEditItem(editingItemId)}
-              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-            >
-              Save Changes
-            </button>
-          </motion.div>
-        )}
-
-        <div className="w-full max-w-md mt-6">
-          <button
-            onClick={() => setShowCsvInput(!showCsvInput)}
-            className="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded"
-          >
-            {showCsvInput ? 'Hide CSV Input' : 'Show CSV Input'}
-          </button>
           {showCsvInput && (
             <div className="mt-4">
               <textarea
                 value={csvText}
                 onChange={(e) => setCsvText(e.target.value)}
-                placeholder="Paste your CSV content here"
-                className="w-full h-40 p-2 rounded border border-neutral-600 bg-neutral-700 text-white"
+                placeholder="Paste CSV content here"
+                className="p-3 rounded border border-neutral-600 bg-neutral-800 text-white w-full h-40 mb-4"
               />
               <button
                 onClick={handleCsvUpload}
-                className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
               >
                 Process CSV
               </button>
             </div>
           )}
-        </div>
+
+          <button
+            onClick={() => setShowCamera(!showCamera)}
+            className="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded mb-4"
+          >
+            {showCamera ? 'Close Camera' : 'Open Camera'}
+          </button>
+
+          {showCamera && (
+            <div className="mt-4">
+              <Webcam
+                audio={false}
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                className="w-full h-64 rounded mb-4"
+              />
+              <button
+                onClick={handleIdentifyFruit}
+                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+              >
+                Identify Fruit
+              </button>
+              {identifiedFruit && (
+                <div className="mt-4">
+                  <p>Identified Fruit: {identifiedFruit}</p>
+                  <button
+                    onClick={handleAddIdentifiedFruit}
+                    className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded mt-2"
+                  >
+                    Add Identified Fruit
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {showNewItemForm && (
+            <motion.div
+              className="relative w-full max-w-md mt-6"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <h2 className="text-xl mb-4">New Item</h2>
+              <input
+                type="text"
+                placeholder="Name"
+                value={newItem.name}
+                onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                className="p-3 rounded border border-neutral-600 bg-neutral-800 text-white w-full mb-2"
+              />
+              <input
+                type="number"
+                placeholder="Count"
+                value={newItem.count}
+                onChange={(e) => setNewItem({ ...newItem, count: e.target.value })}
+                className="p-3 rounded border border-neutral-600 bg-neutral-800 text-white w-full mb-2"
+              />
+              <input
+                type="date"
+                placeholder="Expiration Date"
+                value={newItem.expirationDate}
+                onChange={(e) => setNewItem({ ...newItem, expirationDate: e.target.value })}
+                className="p-3 rounded border border-neutral-600 bg-neutral-800 text-white w-full mb-2"
+              />
+              <button
+                onClick={handleAddItem}
+                className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded mb-2"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setShowNewItemForm(false)}
+                className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
+              >
+                Cancel
+              </button>
+            </motion.div>
+          )}
+
+          <motion.div
+            className="relative w-full max-w-md mt-6"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h2 className="text-xl mb-4">Inventory</h2>
+            {filteredInventory.map(item => (
+              <div key={item.id} className="border border-neutral-600 bg-neutral-800 p-4 rounded mb-2 flex justify-between">
+                {editingItemId === item.id ? (
+                  <div>
+                    <input
+                      type="text"
+                      value={editedItem.name}
+                      onChange={(e) => setEditedItem({ ...editedItem, name: e.target.value })}
+                      className="p-2 rounded border border-neutral-600 bg-neutral-800 text-white w-full mb-2"
+                    />
+                    <input
+                      type="number"
+                      value={editedItem.count}
+                      onChange={(e) => setEditedItem({ ...editedItem, count: e.target.value })}
+                      className="p-2 rounded border border-neutral-600 bg-neutral-800 text-white w-full mb-2"
+                    />
+                    <input
+                      type="date"
+                      value={editedItem.expirationDate}
+                      onChange={(e) => setEditedItem({ ...editedItem, expirationDate: e.target.value })}
+                      className="p-2 rounded border border-neutral-600 bg-neutral-800 text-white w-full mb-2"
+                    />
+                    <button
+                      onClick={() => handleEditItem(item.id)}
+                      className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded mb-2"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditingItemId(null)}
+                      className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div>
+                      <h3 className="text-lg font-semibold">{item.name}</h3>
+                      <p>Count: {item.count}</p>
+                      <p>Expiration Date: {item.expirationDate}</p>
+                    </div>
+                    <div>
+                      <button
+                        onClick={() => startEditing(item)}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded mb-2"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteItem(item.id)}
+                        className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+          </motion.div>
+        </motion.div>
       </main>
     </div>
   )
