@@ -245,7 +245,7 @@ export default function EditInventory() {
 
       <main className="p-8 flex flex-col items-center">
         <motion.div
-          className="relative w-full max-w-md mb-6"
+          className="relative w-full max-w-lg mb-6"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
@@ -259,211 +259,199 @@ export default function EditInventory() {
                 setSearchQuery(e.target.value)
                 handleSearch(e.target.value)
               }}
-              onKeyDown={handleKeyPress}
-              className="p-3 rounded border border-neutral-600 bg-neutral-800 text-white w-full mr-2"
+              onKeyPress={handleKeyPress}
+              className="w-full px-4 py-2 bg-neutral-900 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-800"
             />
-            <button
-              onClick={() => handleSearch(searchQuery)}
-              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-            >
-              Search
-            </button>
           </div>
         </motion.div>
 
-        <motion.div
-          className="relative w-full max-w-md"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <button
-            onClick={() => setShowNewItemForm(true)}
-            className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded mb-4"
+        <div className="flex flex-col items-center w-full max-w-4xl">
+          <motion.button
+            className="mb-6 px-4 py-2 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+            onClick={() => setShowNewItemForm(!showNewItemForm)}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
           >
-            Add Item
-          </button>
-
-          <button
-            onClick={() => setShowCsvInput(!showCsvInput)}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded mb-4 ml-2"
-          >
-            {showCsvInput ? 'Cancel CSV Input' : 'Upload CSV'}
-          </button>
-
-          <button
-            onClick={handleDeleteAllItems}
-            className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded mb-4 ml-2"
-          >
-            Delete All Items
-          </button>
-
-          {showCsvInput && (
-            <div className="mt-4">
-              <textarea
-                value={csvText}
-                onChange={(e) => setCsvText(e.target.value)}
-                placeholder="Paste CSV content here"
-                className="p-3 rounded border border-neutral-600 bg-neutral-800 text-white w-full h-40 mb-4"
-              />
-              <button
-                onClick={handleCsvUpload}
-                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-              >
-                Process CSV
-              </button>
-            </div>
-          )}
-
-          <button
-            onClick={() => setShowCamera(!showCamera)}
-            className="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded mb-4"
-          >
-            {showCamera ? 'Close Camera' : 'Open Camera'}
-          </button>
-
-          {showCamera && (
-            <div className="mt-4">
-              <Webcam
-                audio={false}
-                ref={webcamRef}
-                screenshotFormat="image/jpeg"
-                className="w-full h-64 rounded mb-4"
-              />
-              <button
-                onClick={handleIdentifyFruit}
-                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-              >
-                Identify Fruit
-              </button>
-              {identifiedFruit && (
-                <div className="mt-4">
-                  <p>Identified Fruit: {identifiedFruit}</p>
-                  <button
-                    onClick={handleAddIdentifiedFruit}
-                    className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded mt-2"
-                  >
-                    Add Identified Fruit
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+            {showNewItemForm ? 'Cancel' : 'Add Item'}
+          </motion.button>
 
           {showNewItemForm && (
             <motion.div
-              className="relative w-full max-w-md mt-6"
+              className="w-full mb-6 p-4 bg-neutral-900 rounded"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <h2 className="text-xl mb-4">New Item</h2>
               <input
                 type="text"
                 placeholder="Name"
                 value={newItem.name}
                 onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                className="p-3 rounded border border-neutral-600 bg-neutral-800 text-white w-full mb-2"
+                className="w-full mb-2 px-4 py-2 bg-neutral-900 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-800"
               />
               <input
                 type="number"
                 placeholder="Count"
                 value={newItem.count}
                 onChange={(e) => setNewItem({ ...newItem, count: e.target.value })}
-                className="p-3 rounded border border-neutral-600 bg-neutral-800 text-white w-full mb-2"
+                className="w-full mb-2 px-4 py-2 bg-neutral-900 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-800"
               />
               <input
                 type="date"
                 placeholder="Expiration Date"
                 value={newItem.expirationDate}
                 onChange={(e) => setNewItem({ ...newItem, expirationDate: e.target.value })}
-                className="p-3 rounded border border-neutral-600 bg-neutral-800 text-white w-full mb-2"
+                className="w-full mb-2 px-4 py-2 bg-neutral-900 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-800"
               />
               <button
                 onClick={handleAddItem}
-                className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded mb-2"
+                className="w-full px-4 py-2 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
               >
-                Save
-              </button>
-              <button
-                onClick={() => setShowNewItemForm(false)}
-                className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
-              >
-                Cancel
+                Add Item
               </button>
             </motion.div>
           )}
 
           <motion.div
-            className="relative w-full max-w-md mt-6"
+            className="w-full mb-6 p-4 bg-neutral-900 rounded"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <h2 className="text-xl mb-4">Inventory</h2>
-            {filteredInventory.map(item => (
-              <div key={item.id} className="border border-neutral-600 bg-neutral-800 p-4 rounded mb-2 flex justify-between">
-                {editingItemId === item.id ? (
-                  <div>
-                    <input
-                      type="text"
-                      value={editedItem.name}
-                      onChange={(e) => setEditedItem({ ...editedItem, name: e.target.value })}
-                      className="p-2 rounded border border-neutral-600 bg-neutral-800 text-white w-full mb-2"
-                    />
-                    <input
-                      type="number"
-                      value={editedItem.count}
-                      onChange={(e) => setEditedItem({ ...editedItem, count: e.target.value })}
-                      className="p-2 rounded border border-neutral-600 bg-neutral-800 text-white w-full mb-2"
-                    />
-                    <input
-                      type="date"
-                      value={editedItem.expirationDate}
-                      onChange={(e) => setEditedItem({ ...editedItem, expirationDate: e.target.value })}
-                      className="p-2 rounded border border-neutral-600 bg-neutral-800 text-white w-full mb-2"
-                    />
-                    <button
-                      onClick={() => handleEditItem(item.id)}
-                      className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded mb-2"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={() => setEditingItemId(null)}
-                      className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <div>
-                      <h3 className="text-lg font-semibold">{item.name}</h3>
-                      <p>Count: {item.count}</p>
-                      <p>Expiration Date: {item.expirationDate}</p>
-                    </div>
-                    <div>
-                      <button
-                        onClick={() => startEditing(item)}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded mb-2"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteItem(item.id)}
-                        className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
+            <Webcam
+              audio={false}
+              ref={webcamRef}
+              screenshotFormat="image/jpeg"
+              className={showCamera ? 'w-full h-auto mb-4' : 'hidden'}
+            />
+            <button
+              onClick={() => setShowCamera(!showCamera)}
+              className="w-full px-4 py-2 mb-2 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+            >
+              {showCamera ? 'Close Camera' : 'Identify Product'}
+            </button>
+            <button
+              onClick={handleIdentifyFruit}
+              className="w-full px-4 py-2 mb-2 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+            >
+              Capture and Identify
+            </button>
+            <button
+              onClick={handleAddIdentifiedFruit}
+              className="w-full px-4 py-2 mb-2 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+              disabled={!identifiedFruit}
+            >
+              Add Identified Product
+            </button>
           </motion.div>
-        </motion.div>
+
+          <motion.div
+            className="w-full mb-6 p-4 bg-neutral-900 rounded"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <textarea
+              rows="5"
+              placeholder="Paste CSV content here..."
+              value={csvText}
+              onChange={(e) => setCsvText(e.target.value)}
+              className="w-full mb-2 px-4 py-2 bg-neutral-900 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-800"
+            />
+            <button
+              onClick={handleCsvUpload}
+              className="w-full px-4 py-2 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+            >
+              Upload CSV
+            </button>
+          </motion.div>
+
+          <motion.div
+            className="w-full p-4 bg-neutral-900 rounded"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h2 className="text-xl font-bold mb-4">Inventory List</h2>
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              {filteredInventory.map((item) => (
+                <div key={item.id} className="bg-neutral-900 p-2 rounded">
+                  <div className="font-bold mb-1">{item.name}</div>
+                  <div className="mb-1">Count: {item.count}</div>
+                  <div className="mb-1">Expires: {item.expirationDate}</div>
+                  <button
+                    className="mr-2 px-2 py-1 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+                    onClick={() => handleDeleteItem(item.id)}
+                  >
+                    Delete
+                  </button>
+                  <button
+                    className="px-2 py-1 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+                    onClick={() => startEditing(item)}
+                  >
+                    Edit
+                  </button>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+
+        {editingItemId && (
+          <motion.div
+            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              className="bg-neutral-900 p-6 rounded"
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <h2 className="text-xl font-bold mb-4">Edit Item</h2>
+              <input
+                type="text"
+                placeholder="Name"
+                value={editedItem.name}
+                onChange={(e) => setEditedItem({ ...editedItem, name: e.target.value })}
+                className="w-full mb-2 px-4 py-2 bg-neutral-900 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-800"
+              />
+              <input
+                type="number"
+                placeholder="Count"
+                value={editedItem.count}
+                onChange={(e) => setEditedItem({ ...editedItem, count: e.target.value })}
+                className="w-full mb-2 px-4 py-2 bg-neutral-900 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-800"
+              />
+              <input
+                type="date"
+                placeholder="Expiration Date"
+                value={editedItem.expirationDate}
+                onChange={(e) => setEditedItem({ ...editedItem, expirationDate: e.target.value })}
+                className="w-full mb-2 px-4 py-2 bg-neutral-900 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-800"
+              />
+              <div className="flex justify-end">
+                <button
+                  className="mr-2 px-4 py-2 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+                  onClick={() => setEditingItemId(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-purple-950 text-white rounded hover:bg-purple-800 focus:outline-none"
+                  onClick={() => handleEditItem(editingItemId)}
+                >
+                  Save
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </main>
     </div>
   )
+  
 }

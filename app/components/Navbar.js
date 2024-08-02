@@ -19,12 +19,12 @@ export default function Navbar() {
   }
 
   return (
-    <header className="bg-neutral-900 text-white p-4 shadow-md flex items-center justify-between">
+    <header className="bg-neutral-900 text-gradient  p-4 shadow-md flex items-center justify-between bg-gradient-to-r from-purple-950 via-black to-neutral-900 ">
       <div className="text-2xl font-bold text-gradient cursor-pointer" onClick={() => router.push('/dashboard')}>
-        InventoryApp
+        GrocerEase
       </div>
       <button
-        className="lg:hidden p-2 text-white"
+        className="lg:hidden p-2 text-white "
         onClick={() => setIsMenuOpen(!isMenuOpen)}
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

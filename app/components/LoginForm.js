@@ -30,9 +30,9 @@ export default function LoginForm({ onGoogleLogin, onEmailLogin, onEmailSignup }
         style={{ backgroundImage: `url(${loginBg.src})` }} 
       ></div>
       <div className="relative flex flex-col items-center space-y-8 p-8">
-        <div className="relative bg-black bg-opacity-70 p-6 rounded-lg">
+        <div className="relative bg-neutral-900 bg-opacity-100 p-6 rounded-lg">
           <h1 className="text-4xl font-bold text-white text-center">
-            Welcome to Your Inventory
+            Welcome to GrocerEase
           </h1>
         </div>
         <div className="flex items-center justify-center">
