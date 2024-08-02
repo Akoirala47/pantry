@@ -7,6 +7,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { useRouter } from 'next/navigation'
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc, writeBatch } from 'firebase/firestore'
 import { parse } from 'csv-parse';
+import moment from 'moment';
 
 export default function EditInventory() {
   const [user, setUser] = useState(null)
@@ -106,6 +107,8 @@ export default function EditInventory() {
     }
   }
 
+
+
   const handleCsvUpload = async () => {
     if (csvText.trim() === '') {
       console.error('No CSV content provided');
@@ -141,8 +144,8 @@ export default function EditInventory() {
   
         records.forEach((record) => {
           console.log('Processing record:', record);
-          const [day, month, year] = record.expirationDate.split('-');
-          const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+          const date = moment(record.expirationDate, 'DD-MM-YYYY');
+          const formattedDate = date.format('YYYY-MM-DD');
           const item = {
             name: record.name || '',
             count: parseInt(record.count, 10) || 0,
