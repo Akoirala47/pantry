@@ -70,6 +70,7 @@ The data is formatted as a CSV with the following columns:
 
 ### Data Sample
 
+```
 name,count,expirationDate
 Bread - Ciabatta Buns,1,27-01-2025
 Mushrooms - Honey,18,15-07-2024
@@ -146,5 +147,6 @@ Crab - Soft Shell,16,25-11-2024
 Pork - Loin, Bone - In,9,04-11-2024
 Compound - Rum,0,04-01-2025
 Flour - Bran, Red,9,29-11-2024
+```
 
 You can copy and paste this data into the CSV input and use it to upload your initial inventory.
