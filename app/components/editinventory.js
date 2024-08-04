@@ -24,6 +24,7 @@ export default function EditInventory() {
   const [deleteMode, setDeleteMode] = useState(false)
   const webcamRef = useRef(null)
   const router = useRouter()
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -56,13 +57,17 @@ export default function EditInventory() {
   }, [])
 
   const fetchInventoryData = async (currentUser) => {
-    if (!currentUser) return
-    const userInventoryRef = collection(firestore, 'users', currentUser.uid, 'inventory')
-    const querySnapshot = await getDocs(userInventoryRef)
-    const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-    setInventory(data)
-    setFilteredInventory(data)
-  }
+    if (!currentUser) return;
+    try {
+      const userInventoryRef = collection(firestore, 'users', currentUser.uid, 'inventory');
+      const querySnapshot = await getDocs(userInventoryRef);
+      const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setInventory(data);
+      setFilteredInventory(data);
+    } catch (error) {
+      console.error('Error fetching inventory data:', error);
+    }
+  };
 
   const handleSearch = (query) => {
     const filteredItems = inventory.filter(item =>
@@ -200,19 +205,42 @@ export default function EditInventory() {
     }
   }
 
-  const handleEditAll = () => {
-    setEditMode(!editMode)
-    setDeleteMode(false)
-  }
+  const handleEditAll = async () => {
+    if (editMode) {
+      // Save changes to Firebase
+      try {
+        const batch = writeBatch(firestore);
+        inventory.forEach((item) => {
+          const itemRef = doc(firestore, 'users', user.uid, 'inventory', item.id);
+          batch.update(itemRef, {
+            name: item.name,
+            count: item.count,
+            expirationDate: item.expirationDate
+          });
+        });
+        await batch.commit();
+        console.log('All items updated successfully');
+        // Fetch the updated data from Firebase
+        await fetchInventoryData(user);
+      } catch (error) {
+        console.error('Error updating items:', error);
+      }
+    }
+    setEditMode(!editMode);
+    setDeleteMode(false);
+  };
 
   const handleDeleteMode = () => {
     setDeleteMode(!deleteMode)
     setEditMode(false)
   }
-
   const updateItemField = (itemId, field, value) => {
-    setInventory(inventory.map(item => 
+    const updatedInventory = inventory.map(item => 
       item.id === itemId ? { ...item, [field]: value } : item
+    )
+    setInventory(updatedInventory)
+    setFilteredInventory(updatedInventory.filter(item =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase())
     ))
   }
 
@@ -364,8 +392,9 @@ export default function EditInventory() {
                 <button
                   className="mr-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-400 focus:outline-none"
                   onClick={handleEditAll}
+                  disabled={editMode && isSaving}
                 >
-                  {editMode ? 'Save All' : 'Edit All'}
+                  {editMode ? (isSaving ? 'Saving...' : 'Save All') : 'Edit All'}
                 </button>
                 <button
                   className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400 focus:outline-none"
