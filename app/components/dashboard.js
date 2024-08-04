@@ -6,12 +6,14 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { collection, getDocs } from 'firebase/firestore'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { FaSortUp, FaSortDown } from 'react-icons/fa'
 
 export default function Dashboard() {
   const [user, setUser] = useState(null)
   const [inventoryData, setInventoryData] = useState([])
   const [filteredData, setFilteredData] = useState([])
   const [filter, setFilter] = useState('all')
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' })
   const router = useRouter()
 
   useEffect(() => {
@@ -44,6 +46,29 @@ export default function Dashboard() {
     }
     setFilter(filter)
     setFilteredData(filtered)
+  }
+
+  const sortData = (key) => {
+    let direction = 'ascending'
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending'
+    }
+    setSortConfig({ key, direction })
+
+    const sortedData = [...filteredData].sort((a, b) => {
+      if (a[key] < b[key]) return direction === 'ascending' ? -1 : 1
+      if (a[key] > b[key]) return direction === 'ascending' ? 1 : -1
+      return 0
+    })
+
+    setFilteredData(sortedData)
+  }
+
+  const getSortIcon = (key) => {
+    if (sortConfig.key === key) {
+      return sortConfig.direction === 'ascending' ? <FaSortUp /> : <FaSortDown />
+    }
+    return null
   }
 
   const totalItems = inventoryData.length
@@ -108,9 +133,24 @@ export default function Dashboard() {
               <table className="w-full bg-gray-800 rounded-lg shadow-lg border border-gray-700">
                 <thead>
                   <tr className="bg-gray-700">
-                    <th className="py-4 px-6 border-b border-gray-600 text-left text-gray-300">Name</th>
-                    <th className="py-4 px-6 border-b border-gray-600 text-left text-gray-300">Count</th>
-                    <th className="py-4 px-6 border-b border-gray-600 text-left text-gray-300">Expiration Date</th>
+                    <th 
+                      className="py-4 px-6 border-b border-gray-600 text-left text-gray-300 cursor-pointer"
+                      onClick={() => sortData('name')}
+                    >
+                      Name {getSortIcon('name')}
+                    </th>
+                    <th 
+                      className="py-4 px-6 border-b border-gray-600 text-left text-gray-300 cursor-pointer"
+                      onClick={() => sortData('count')}
+                    >
+                      Count {getSortIcon('count')}
+                    </th>
+                    <th 
+                      className="py-4 px-6 border-b border-gray-600 text-left text-gray-300 cursor-pointer"
+                      onClick={() => sortData('expirationDate')}
+                    >
+                      Expiration Date {getSortIcon('expirationDate')}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
